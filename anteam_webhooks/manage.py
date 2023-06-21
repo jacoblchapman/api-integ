@@ -6,7 +6,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), 'anteam_webhooks'))
 
 def main():
-    """Run administrative tasks."""
+    """Run administratilve tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'anteam_webhooks.settings')
     try:
         from django.core.management import execute_from_command_line

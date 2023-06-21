@@ -12,3 +12,14 @@ def webhook(request):
         return HttpResponse(status=200)
     else:
         return HttpResponse(status=405)
+    
+
+# EXAMPLE POST REQUEST
+# $uri = "http://127.0.0.1:8000/webhook/"
+# $headers = @{}
+# $body = @{
+#     firstname = "Freddie"
+#     lastname = "Moore"
+# } | ConvertTo-Json
+
+# Invoke-RestMethod -Uri $uri -Method POST -Headers $headers -Body $body
