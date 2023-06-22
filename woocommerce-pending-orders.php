@@ -1,4 +1,12 @@
 <?php
+
+/*
+Plugin Name: Anteam Shipping
+Version: 1.0
+Author: Anteam
+Description: Automatically ship products from your store using Anteam
+*/
+
 // Include the WooCommerce plugin files (relative)
 require_once( plugin_dir_path( __FILE__ ) . '../woocommerce/woocommerce.php' );
 
