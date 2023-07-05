@@ -45,9 +45,15 @@ function load_orders_page() {
     }
     
     // Get all processing orders
-    $orders = wc_get_orders(array(
-        'status' => 'processing',
-    ));
+    $orders = wc_get_orders( array(
+    'status' => 'processing',
+    'meta_query' => array(
+        array(
+            'key' => '_shipping_method',
+            'value' => 'anteam_shipping',
+        ),
+    ),
+) );
 
     // Output table
     echo '<h1>Anteam Order Approval</h1>';
@@ -78,15 +84,20 @@ function load_orders_page() {
         $order_total = $order->get_total();
         $view_order_url = get_edit_post_link($order_id);
 
-        // Show order
-        echo '<tr>';
-        echo '<td>' . $order_id . '</td>';
-        echo '<td>' . $customer_name . '</td>';
-        echo '<td>' . $order_total . '</td>';
-        echo '<td><a href="?page=anteam-orders&action=approve&order_id=' . $order_id . '">Approve</a></td>';
-        echo '<td><a href="?page=anteam-orders&action=deny&order_id=' . $order_id . '">Deny</a></td>';
-        echo '<td><a href="' . $view_order_url . '">View Order</a></td>';
-        echo '</tr>';
+        // Couldn't get this approach to work , less resource intensive than a meta query if it works
+        // $shipping_methods = $order->get_shipping_methods();
+       // if (in_array('anteam_shipping', $shipping_methods)) {
+
+            // Show order
+            echo '<tr>';
+            echo '<td>' . $order_id . '</td>';
+            echo '<td>' . $customer_name . '</td>';
+            echo '<td>' . $order_total . '</td>';
+            echo '<td><a href="?page=anteam-orders&action=approve&order_id=' . $order_id . '">Approve</a></td>';
+            echo '<td><a href="?page=anteam-orders&action=deny&order_id=' . $order_id . '">Deny</a></td>';
+            echo '<td><a href="' . $view_order_url . '">View Order</a></td>';
+            echo '</tr>';
+        //}
     }
 
     echo '</tbody>';
@@ -118,6 +129,64 @@ function orderDenied($order)
 // Look at sending data over to app
 // Look at handling logic after sent to app (e.g. order delivered , request unsuccesful, not enough credit..)
 // do we need custom statuses??
+
+// Custom Shipping Method
+function anteam_add_shipping_method( $methods ) {
+    $methods['anteam_shipping'] = 'WC_Anteam_Shipping_Method';
+    return $methods;
+}
+add_filter( 'woocommerce_shipping_methods', 'anteam_add_shipping_method' );
+
+class WC_Anteam_Shipping_Method extends WC_Shipping_Method {
+
+    public function __construct() {
+        $this->id                 = 'anteam_shipping';
+        $this->method_title       = __( 'Anteam Shipping', 'anteam_shipping' );
+        $this->method_description = __( 'Anteam shipping method used to ship parcels automatically', 'anteam_shipping' );
+         $this->title = 'Anteam Shipping';
+         
+        // Availability : change to postal codes later?
+        $this->availability = 'including';
+        $this->countries = array(
+            'GB', // United Kingdom
+        );
+
+        $this->init();
+
+        $this->enabled = isset( $this->settings['enabled'] ) ? $this->settings['enabled'] : 'yes';
+    }
+
+    function init() {
+        // Load the settings API
+        $this->init_form_fields();
+        $this->init_settings();
+
+        // Save enable setting
+        add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
+    }
+
+    function init_form_fields() { 
+
+        $this->form_fields = array(
+            'enabled' => array(
+                'title'       => __( 'Enable', 'anteam_shipping' ),
+                'type'        => 'checkbox',
+                'description' => __( 'Enable this shipping.', 'anteam_shipping' ),
+                'default'     => 'yes'
+            ),
+        );
+    }
+
+    public function calculate_shipping( $package = array() ) {
+        $rate = array(
+            'id' => $this->id,
+            'label' => $this->title,
+            'cost' => 2,
+            'calc_tax' => 'per_item'
+        );
+        $this->add_rate( $rate );
+    }
+}
 
 
 

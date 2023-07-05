@@ -6,6 +6,7 @@ import json
 @csrf_exempt
 def webhook(request):
     if request.method == 'POST':
+        print('debug')
         payload = json.loads(request.body)
         print(payload)
     
