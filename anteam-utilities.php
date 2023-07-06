@@ -29,8 +29,9 @@ function getOrderWeight($order) {
 // {
 //     "allowed" = true,
 // }
-function allowOrder($adddress) {
-    $url = "https://anteam.co.uk/placeholder?address=" . $address; #placeholder url
+function allowOrder($pickup_address, $dropoff_address) {
+    $url = "https://anteam.co.uk/placeholder?pickup-address=" . $pickup_address . "&dropoff-address=" . $dropoff_address; #placeholder url
+    # could store pickup lat / lon to save on an API request?
     
     $response = file_get_contents($url);
     $json = json_decode($response, true);
