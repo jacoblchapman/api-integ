@@ -7,27 +7,27 @@
 
 **Plugin List to Research:**
 
-- Admin menu editor
-- AutomateWoo
-- Braintree for WooCommerce payment gateway
-- Category Thing
-- Conditional Menus
-- Contact Form 7
-- Exclude pages from menu
-- Google analytics for WordPress by MonsterInsights
-- Grow Social by MediaVine
-- Headers Security Advanced & HSTS WP
-- Health Check and troubleshooting
-- Import export WordPress users and WooCommerce customers
-- MC4WP: Mailchimp for WordPress
-- Nextend Social Login
-- Ninja-forms
-- Ninja Forms - Mailchimp
-- Order export & Order Import for WooCommerce
-- Order Export for WooCommerce
-- Order Status History for WooCommerce
-- PixelYourSite
-- Popup Maker
+- Admin menu editor - if approve / deny ordesr page doesn't show might be because of this plugin (unlikely)
+- AutomateWoo - no issues
+- Braintree for WooCommerce payment gateway - no issues
+- Category Thing - couldn't find (but not activated anyway)
+- Conditional Menus - no issues
+- Contact Form 7 - no issues
+- Exclude pages from menu - no issues
+- Google analytics for WordPress by MonsterInsights - might misreport data for Anteam orders? Not sure
+- Grow Social by MediaVine - no issues
+- Headers Security Advanced & HSTS WP - no issues
+- Health Check and troubleshooting - no issues, will have to see if it reports anything about our plugin
+- Import export WordPress users and WooCommerce customers - shouldn't affect plugin usability - will have to see how it handles exporting Anteam orders
+- MC4WP: Mailchimp for WordPress - no issues
+- Nextend Social Login - no issues
+- Ninja-forms - no issues
+- Ninja Forms - Mailchimp - couldn't find documentation
+- Order export & Order Import for WooCommerce - shouldn't affect plugin usability - will have to see how it handles exporting / importing Anteam orders. Can use this as a backup method.
+- Order Export for WooCommerce - shouldn't affect usability - will have to see how it handles exporting Anteam orders.
+- Order Status History for WooCommerce - no issues
+- PixelYourSite - no issues
+- Popup Maker - no issues
 - Product import export for WooCommerce
 - Rearrange WooCommerce Products
 - reCaptcha for WooCommerce
