@@ -7,7 +7,6 @@
 
 **Plugin List to Research:**
 
-<<<<<<< HEAD
 - Admin menu editor - if approve / deny ordesr page doesn't show might be because of this plugin (unlikely)
 - AutomateWoo - no issues
 - Braintree for WooCommerce payment gateway - no issues
@@ -29,48 +28,6 @@
 - Order Status History for WooCommerce - no issues
 - PixelYourSite - no issues
 - Popup Maker - no issues
-- Product import export for WooCommerce
-- Rearrange WooCommerce Products
-- reCaptcha for WooCommerce
-- Simple 301 Redirects
-- Taxonomy Metadata
-- UpdraftPlus - backup / restore
-- User switching
-- WooCommerce
-- WooCommerce Google Analytics Integration
-- WooCommerce PayPal Payments
-- WooCommerce Subscriptions
-- WooCommerce Subscriptions Extras
-- WooCommerce Sync for QuickBooks Online - by MyWorks Software
-- WooCommerce Zapier Integration
-- WP Mail SMTP
-- WP-Optimize - Clean, Compress, Cache
-- YITH WooCommerce Ajax Search
-- YITH WooCommerce Wishlist
-- Yoast Duplicate Post
-- Yoast SEO
-=======
-- Admin menu editor
-- AutomateWoo
-- Braintree for WooCommerce payment gateway
-- Category Thing
-- Conditional Menus
-- Contact Form 7
-- Exclude pages from menu
-- Google analytics for WordPress by MonsterInsights
-- Grow Social by MediaVine
-- Headers Security Advanced & HSTS WP
-- Health Check and troubleshooting
-- Import export WordPress users and WooCommerce customers
-- MC4WP: Mailchimp for WordPress
-- Nextend Social Login
-- Ninja-forms
-- Ninja Forms - Mailchimp
-- Order export & Order Import for WooCommerce
-- Order Export for WooCommerce
-- Order Status History for WooCommerce
-- PixelYourSite
-- Popup Maker
 - Product import export for WooCommerce - no issues
 - Rearrange WooCommerce Products - no issues
 - reCaptcha for WooCommerce - should be no issues, unless calculate_shipping() triggers the captcha
@@ -91,7 +48,6 @@
 - YITH WooCommerce Wishlist - no issues
 - Yoast Duplicate Post - no issues
 - Yoast SEO - no issues
->>>>>>> f575cb73f6833a6a34042a608aa22e7d0397f777
 
 **V2 Additions:**
 
