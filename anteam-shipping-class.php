@@ -39,7 +39,7 @@ class WC_Anteam_Shipping_Method extends WC_Shipping_Method {
                 'type'    => 'checkbox',
                 'label'   => 'Enable Anteam Shipping Option at Checkout',
                 'description'   => __('When this checkbox is enabled, users will be able to choose Anteam as a shipping method at checkout. All orders shown in the orders table will be ones where the customer chose Anteam shipping. If this box is disabled, all orders in the orders table will be orders eligible to ship with Anteam.', 'anteam_shipping'),
-                'default' => 'yes',
+                'default' => 'no',
             ),
         'auth_token' => array(
                 'title'   => __('Authorisation Token', 'anteam_shipping'),
@@ -127,12 +127,42 @@ class WC_Anteam_Shipping_Method extends WC_Shipping_Method {
     
     // hook to run every time settings are updated
     public function process_admin_options() {
+
+        $old_address = $this->get_option('pickup_address');
+
         parent::process_admin_options();
 
+        $new_address = $this->get_option('pickup_address');
+
+        // if pickup address changed , alter all orders that have the Anteam shipping option to now use free shipping (as cannot calculate if still within radius, or do we recalculate for all orders??)
+        if ($new_address !== $old_address) {
+            $orders = wc_get_orders(array(
+                'status' => 'processing',
+                'limit' => -1,
+                ));
+                
+            foreach ($orders as $order) {
+            
+            // select only orders with Anteam shipping method
+            $shipping_method = $order->get_shipping_method();
+            if ($shipping_method == 'Anteam Shipping') {
+                $free_shipping_method_id = 'free_shipping:1';
+                $shipping_items = $order->get_items('shipping');
+                
+                update_post_meta($order->get_id(), 'anteam_denied', 'true');
+            
+                foreach ($shipping_items as $shipping_item) {
+                    $shipping_item->set_method_title($free_shipping_method_id);
+                    $shipping_item->save();
+                }
+            
+                $order->save();
+            }
+            }
+        }
+
         $latlon = fetchLatLon($this->get_pickup_address());
-        // TODO: update latitude and longitude in settings here
-        // update_option('wc_anteam_shipping_pickup_latitude', 14);
-        // update_option('wc_anteam_shipping_pickup_longitude', 19);
+
         update_option('wc_anteam_shipping_pickup_latitude', $latlon[0]);
         update_option('wc_anteam_shipping_pickup_longitude', $latlon[1]);
 

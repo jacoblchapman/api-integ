@@ -12,6 +12,11 @@ require_once( plugin_dir_path( __FILE__ ) . '../woocommerce/woocommerce.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'anteam-shipping-class.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'anteam-utilities.php' );
 
+// custom order property
+function add_anteam_denied_field($order_id) {
+    update_post_meta($order_id, 'anteam_denied', 'false');
+}
+add_action('woocommerce_new_order', 'add_anteam_denied_field');
 
 // Instantiate and add the custom shipping method
 function anteam_add_shipping_method($methods) {
@@ -19,6 +24,14 @@ function anteam_add_shipping_method($methods) {
     return $methods;
 }
 add_filter('woocommerce_shipping_methods', 'anteam_add_shipping_method');
+
+// function anteam_shipping_init() {
+//     if (class_exists('WC_Anteam_Shipping_Method')) {
+//         $Anteam_shipping_instance = new WC_Anteam_Shipping_Method;
+//     }
+// }
+// add_action('woocommerce_shipping_init', 'anteam_shipping_init');
+
 
 // Add a new submenu page
 function add_order_approval_submenu_page() {
@@ -127,7 +140,9 @@ function load_orders_page() {
     echo '</table>';
 }
 
-
+// Anteam App login details:
+// Send Packages : freddie.moore101@gmail.com:temp1234
+// Deliver packages : freddiemoore.101@gmail.com:temp1234
 
 
 

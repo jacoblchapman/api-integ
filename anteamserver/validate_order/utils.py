@@ -1,6 +1,7 @@
 from math import radians, cos, sin, asin, sqrt
 import requests
 
+api_key = "AIzaSyCyuj2O2NfgYm-wze8w1S8O6-6NYMgZXNo"
 # taken off stack overflow
 def haversine(lon1, lat1, lon2, lat2):
     """
@@ -20,7 +21,7 @@ def haversine(lon1, lat1, lon2, lat2):
     return c * r
 
 def fetch_lat_lon(address):
-    api_key = "AIzaSyBr-XgC4vY-w8YNOXIpNzey8f-Y_fCHRcQ"
+    # api_key = "AIzaSyCyuj2O2NfgYm-wze8w1S8O6-6NYMgZXNo"
     url = f"https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={api_key}"
 
     response = requests.get(url)

@@ -14,9 +14,9 @@ function getWeightMultiplier() {
         return 35.273962;
     }
 }
+
 function fetchOrders() {
     // do we need a limit?
-    
     // fetch all orders marked as processing
     $orders = wc_get_orders(array(
     'status' => 'processing',
@@ -40,24 +40,21 @@ function fetchOrders() {
         }
     } else {
         foreach ($orders as $order) {
-            
-                // select orders with any shipping method that are within 8 miles
-                $address = $order->get_shipping_address_1() . $order->get_shipping_address_2() . ', ' . $order->get_shipping_city() . ', ' . $order->get_shipping_postcode();
-                $latlon = fetchLatLon($address);
-                if($latlon == null) {
-                    error_log('ERROR WITH ORDER '. $order->get_id() . ' address :' . $order->get_shipping_address_1());
-                } else {
-                    error_log(getOrderWeight($order));
-                    error_log(15 * getWeightMultiplier());
+                if(get_post_meta($order->get_id(), 'anteam_denied', true) == 'false') {
                     if(getOrderWeight($order) < (15 * getWeightMultiplier())) {
-                        // error_log($Anteam_shipping_instance->get_pickup_latitude());
-                        // error_log($Anteam_shipping_instance->get_pickup_longitude());
+                        $address = $order->get_shipping_address_1() . $order->get_shipping_address_2() . ', ' . $order->get_shipping_city() . ', ' . $order->get_shipping_postcode();
+                        $latlon = fetchLatLon($address);
+                    if($latlon == null) {
+                        error_log('ERROR WITH ORDER '. $order->get_id() . ' address :' . $order->get_shipping_address_1());
+                    } else {
                         $distance = haversine($Anteam_shipping_instance->get_pickup_latitude(), $Anteam_shipping_instance->get_pickup_longitude(), $latlon[0], $latlon[1]);
                         if($distance <= 12.87) {
+                            error_log('adding order');
                             array_push($retOrders, $order);
                         }
                     }
                 }
+            }
         }
     }
     
@@ -91,10 +88,6 @@ function orderApproved($order)
     } else {
         $size = "inv";
     }
-    
-    
-    // reqbin for testing 
-    // $handle = curl_init('https://eonkemuf8tcm77i.m.pipedream.net');
     
     $handle = curl_init('https://api.anteam.co.uk/api/requests/woo_create/');
     $authToken = $Anteam_shipping_instance->get_auth_token();
@@ -145,11 +138,12 @@ function orderApproved($order)
 
 function orderDenied($order)
 {
-    // TODO : For method 2, (no anteam shipping method offered), do we remove this from orders table once denied, if so - how?
     
     // set shipping method to free shipping, business can handle as they like
     $free_shipping_method_id = 'free_shipping:1';
     $shipping_items = $order->get_items('shipping');
+    
+    update_post_meta($order->get_id(), 'anteam_denied', 'true');
 
     foreach ($shipping_items as $shipping_item) {
         $shipping_item->set_method_title($free_shipping_method_id);
@@ -185,8 +179,9 @@ function getOrderWeight($order) {
 }
 
 function fetchLatLon($address) {
-$API_KEY = "";
-
+    
+$API_KEY = "AIzaSyCyuj2O2NfgYm-wze8w1S8O6-6NYMgZXNo";
+error_log($address);
 $address = urlencode($address);
 
 $url = "https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=$API_KEY";
@@ -196,11 +191,9 @@ $response = file_get_contents($url);
 
 // Decode the response as a JSON object
 $json = json_decode($response);
-
 if($json->status != 'OK') {
     return null;
 } else {
-    
     // Extract the latitude and longitude coordinates
     $latitude = $json->results[0]->geometry->location->lat;
     $longitude = $json->results[0]->geometry->location->lng;
