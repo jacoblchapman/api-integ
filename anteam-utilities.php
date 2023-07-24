@@ -39,20 +39,38 @@ function fetchOrders() {
             }
         }
     } else {
+        $Anteam_shipping_instance = new WC_Anteam_Shipping_Method();
+
+        $authToken = $Anteam_shipping_instance->get_auth_token();
+
+        $checkOrders = checkAddresses($orders, $authToken);
+    
         foreach ($orders as $order) {
-                if(get_post_meta($order->get_id(), 'anteam_denied', true) == 'false') {
-                    if(getOrderWeight($order) < (15 * getWeightMultiplier())) {
-                        $address = $order->get_shipping_address_1() . $order->get_shipping_address_2() . ', ' . $order->get_shipping_city() . ', ' . $order->get_shipping_postcode();
-                        $latlon = fetchLatLon($address);
-                    if($latlon == null) {
-                        error_log('ERROR WITH ORDER '. $order->get_id() . ' address :' . $order->get_shipping_address_1());
-                    } else {
-                        $distance = haversine($Anteam_shipping_instance->get_pickup_latitude(), $Anteam_shipping_instance->get_pickup_longitude(), $latlon[0], $latlon[1]);
-                        if($distance <= 12.87) {
-                            error_log('adding order');
-                            array_push($retOrders, $order);
+            if(get_post_meta($order->get_id(), 'anteam_denied', true) == 'false') {
+                if(getOrderWeight($order) < (15 * getWeightMultiplier())) {
+                    // $address = $order->get_shipping_address_1() . $order->get_shipping_address_2() . ', ' . $order->get_shipping_city() . ', ' . $order->get_shipping_postcode();
+                    // $latlon = fetchLatLon($address);
+                    // if($latlon == null) {
+                    //     error_log('ERROR WITH ORDER '. $order->get_id() . ' address :' . $order->get_shipping_address_1());
+                    // } else {
+                    //     $distance = haversine($Anteam_shipping_instance->get_pickup_latitude(), $Anteam_shipping_instance->get_pickup_longitude(), $latlon[0], $latlon[1]);
+                    //     if($distance <= 12.87) {
+                    //         error_log('adding order');
+                    //         array_push($retOrders, $order);
+                    //     }
+                    // }
+
+
+                    
+                    foreach ($checkOrders as $orderChecked) {
+                        if($orderChecked->id == $order->get_id()) {
+                            if($orderChecked->accepted) {
+                                error_log('adding order' . $order->get_id());
+                                array_push($retOrders, $order);
+                                break;
+                            }
                         }
-                    }
+                    } 
                 }
             }
         }
@@ -201,6 +219,46 @@ if($json->status != 'OK') {
     return array($latitude, $longitude);
 }
 
+}
+
+function checkAddresses($orders, $authToken) {
+
+    $data = array();
+    foreach ($orders as $order) {
+
+        $d = [
+            'id' => $order->get_id(),
+            'postcode' => $order->get_shipping_postcode(),
+        ];
+
+        array_push($data, $d);
+
+    }
+    
+    $url = "https://api.anteam.co.uk/profiles/check_address/";
+
+    $handle = curl_init($url);
+
+
+    $encodedData = json_encode($data);
+
+    curl_setopt($handle, CURLOPT_POST, 1);
+    curl_setopt($handle, CURLOPT_POSTFIELDS, $encodedData);
+    curl_setopt($handle, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: TOKEN '. $authToken,
+    ]);
+
+    curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+    $result = curl_exec($handle);
+    // ADD ERROR HANDLING FOR RESULT
+    curl_close($handle);
+
+    // Decode the response as a JSON object
+    $json = json_decode($result);
+
+    // accepted
+    return $json;
 }
 
 function haversine($lat1, $lon1, $lat2, $lon2) {
