@@ -239,12 +239,13 @@ function checkAddresses($orders, $authToken) {
     curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
     $result = curl_exec($handle);
     $httpStatus = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-
     curl_close($handle);
-
-    // Decode the response as a JSON object
-    $json = json_decode($result);
-    
-    // accepted
-    return $json;
+    if($httpStatus==200) {
+        // Decode the response as a JSON object
+        $json = json_decode($result);
+        // accepted
+        return $json;
+    } else {
+        return array();
+    }
 }
