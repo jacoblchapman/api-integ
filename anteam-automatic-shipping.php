@@ -5,6 +5,8 @@ Plugin Name: Anteam Shipping
 Version: 1.0
 Author: Anteam
 Description: Automatically ship products from your store using Anteam
+Requires PHP: 8.0
+Requires at least: 6.2
 */
 
 // Include the WooCommerce plugin files and shipping class files
@@ -24,13 +26,6 @@ function anteam_add_shipping_method($methods) {
     return $methods;
 }
 add_filter('woocommerce_shipping_methods', 'anteam_add_shipping_method');
-
-// function anteam_shipping_init() {
-//     if (class_exists('WC_Anteam_Shipping_Method')) {
-//         $Anteam_shipping_instance = new WC_Anteam_Shipping_Method;
-//     }
-// }
-// add_action('woocommerce_shipping_init', 'anteam_shipping_init');
 
 
 // Add a new submenu page
@@ -75,7 +70,7 @@ function load_orders_page() {
                 orderDenied($order);
             }
         } else {
-            error_log("ERROR : DO SOMETHING");
+            error_log("Error , line 71 , anteam-automatic-shipping.php : Critical error , order not recognised");
         }
     }
     
@@ -106,6 +101,7 @@ function load_orders_page() {
     echo '<th>Order Total (£)</th>';
     echo '<th>Weight (' . get_option('woocommerce_weight_unit') . ')</th>';
     echo '<th>Address</th>';
+    echo '<th>Shipping Method</th>';
     echo '<th>Approve</th>';
     echo '<th>Deny</th>';
     echo '<th>View</th>';
@@ -122,6 +118,7 @@ function load_orders_page() {
             $view_order_url = get_edit_post_link($order_id);
             $order_weight = getOrderWeight($order);
             $order_address = $order->get_shipping_address_1() . $order->get_shipping_address_2() . ', ' . $order->get_shipping_city() . ', ' . $order->get_shipping_postcode();
+            $shipping_method = $order->get_shipping_method();
     
                 // Show order
                 echo '<tr>';
@@ -130,6 +127,7 @@ function load_orders_page() {
                 echo '<td>' . $order_total . '</td>';
                 echo '<td>' . $order_weight . '</td>';
                 echo '<td>' . $order_address . '</td>';
+                echo '<td>' . $shipping_method . '</td>';
                 echo '<td><a href="?page=anteam-orders&action=approve&order_id=' . $order_id . '">Approve</a></td>';
                 echo '<td><a href="?page=anteam-orders&action=deny&order_id=' . $order_id . '">Deny</a></td>';
                 echo '<td><a href="' . $view_order_url . '">View Order</a></td>';
@@ -139,10 +137,6 @@ function load_orders_page() {
     echo '</tbody>';
     echo '</table>';
 }
-
-// Anteam App login details:
-// Send Packages : freddie.moore101@gmail.com:temp1234
-// Deliver packages : freddiemoore.101@gmail.com:temp1234
 
 
 
