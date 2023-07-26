@@ -25,7 +25,6 @@ function fetchOrders() {
     'limit' => -1,
     ));
     
-    
     // create array to store valid orders
     $retOrders = array();
     $Anteam_shipping_instance = new WC_Anteam_Shipping_Method();
@@ -45,22 +44,16 @@ function fetchOrders() {
         $Anteam_shipping_instance = new WC_Anteam_Shipping_Method();
 
         $authToken = $Anteam_shipping_instance->get_auth_token();
-        // check all orders against valid postcode list
+
         $checkOrders = checkAddresses($orders, $authToken);
+    
         foreach ($orders as $order) {
-            
-            // ensure order hasn't already been rejected from table
             if(get_post_meta($order->get_id(), 'anteam_denied', true) == 'false') {
-                
-                // ensure order is under 15kg    
                 if(getOrderWeight($order) < (15 * getWeightMultiplier())) {
-
-
-                    
                     foreach ($checkOrders as $orderChecked) {
                         if($orderChecked->id == $order->get_id()) {
                             if($orderChecked->accepted) {
-                                // add to ret array
+                                error_log('adding order' . $order->get_id());
                                 array_push($retOrders, $order);
                                 break;
                             }
@@ -79,10 +72,8 @@ function orderApproved($order)
 {
     if($order->get_status() == 'processing') {
         
-
         $Anteam_shipping_instance = new WC_Anteam_Shipping_Method();
         
-    
         // Prepare additional data for POST request
         date_default_timezone_set('Europe/London');
         $currentDate = date('Y-m-d');
@@ -105,7 +96,6 @@ function orderApproved($order)
             $size = "inv";
             error_log("Error , line 104 : anteam_utilities.php");
         }
-
     
         $handle = curl_init('https://api.anteam.co.uk/api/requests/woo_create/');
         $authToken = $Anteam_shipping_instance->get_auth_token();
@@ -148,20 +138,17 @@ function orderApproved($order)
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($handle);
         $httpStatus = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-        
+        curl_close($handle);
+
         // error handling from API
         if($httpStatus==201) {
             // Order has been accepted, update status to completed
             $order->update_status('completed');
         } else {
             error_log("Error, line 155 : Anteam utilities.php , Result : " . $result . " Status : " . $httpStatus);
-            echo '<script type="text/javascript">alert("Error : Order No. ' . $order->get_id() . ' not fulfilled succesfully, please contact Anteam support");</script>';
-            
+            echo '<script type="text/javascript">alert("Error : Order No. ' . $order->get_id() . ' not fulfilled succesfully, please contact Anteam support");</script>';  
         } 
-        
-        curl_close($handle);
     }
-        
 }
 
 function orderDenied($order)
@@ -207,25 +194,21 @@ function getOrderWeight($order) {
     
 }
 
-// check orders against Anteam valid postcode list
+
 function checkAddresses($orders, $authToken) {
 
     $data = array();
     foreach ($orders as $order) {
-
         $d = [
             'id' => $order->get_id(),
             'postcode' => $order->get_shipping_postcode(),
         ];
-
         array_push($data, $d);
-
     }
     
     $url = "https://api.anteam.co.uk/profiles/check_address/";
 
     $handle = curl_init($url);
-
 
     $encodedData = json_encode($data);
 

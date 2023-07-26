@@ -106,27 +106,33 @@ class WC_Anteam_Shipping_Method extends WC_Shipping_Method {
 
                 curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
                 $result = curl_exec($handle);
-                
+
+                $httpStatus = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+        
                 // ADD ERROR HANDLING FOR RESULT
                 curl_close($handle);
-                
-                // Decode the response as a JSON object
-                $json = json_decode($result);
-                
-                // load the order
-                $orderChecked = $json[0];
-                if($orderChecked->id == 1) {
-	                if($orderChecked->accepted) {
-	                    // if postcode is valid, add shipping rate
-                        $rate = array(
-                            'id'        => $this->id,
-                            'label'     => $this->title,
-                            'cost'      => 3,
-                            'calc_tax'  => 'per_item',
-                        );
-                        $this->add_rate($rate);
+                                
+                // error handling from API
+                if($httpStatus==200) {
+                    // Decode the response as a JSON object
+                    $json = json_decode($result);
+                    
+                    // load the order
+                    $orderChecked = $json[0];
+                    if($orderChecked->id == 1) {
+                        if($orderChecked->accepted) {
+                            // if postcode is valid, add shipping rate
+                            $rate = array(
+                                'id'        => $this->id,
+                                'label'     => $this->title,
+                                'cost'      => 3,
+                                'calc_tax'  => 'per_item',
+                            );
+                            $this->add_rate($rate);
+                        }
                     }
-                }
+                } 
+                
             }
         }
     }
