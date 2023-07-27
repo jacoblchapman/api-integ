@@ -69,72 +69,70 @@ class WC_Anteam_Shipping_Method extends WC_Shipping_Method {
     // calls every time the shipping address updates at checkout - calls 3 times for some reason?
     public function calculate_shipping($package = array()) {
 
-        // get total weight for basket contents
-        $total_weight = 0;
-        foreach ($package['contents'] as $item) {
-            $product_weight = floatval(get_post_meta($item['product_id'], '_weight', true));
-            $total_weight += $product_weight * $item['quantity'];
-        }
-        
-        // only offer shipping if  weight <= 15kg
-        if($total_weight <= (15 * getWeightMultiplier())) {
+        // check shipping option settings checkbox enabled
+        if($this->get_option('enabled')=='yes') {
+
+            // get total weight for basket contents
+            $total_weight = 0;
+            foreach ($package['contents'] as $item) {
+                $product_weight = floatval(get_post_meta($item['product_id'], '_weight', true));
+                $total_weight += $product_weight * $item['quantity'];
+            }            
+            // prepare json for request to Anteam server
+            $data = array();
+            $d = [
+                // id of 1 is a placeholder - not relevant
+                'id' => 1,
+                'postcode' => $package['destination']['postcode'],
+                'weight' => total_weight,
+                'unit' => get_option('woocommerce_weight_unit'),
+            ];
+            array_push($data, $d);
             
-            // check shipping option settings checkbox enabled
-            if($this->get_option('enabled')=='yes') {
-                
-                // prepare json for request to Anteam server
-                $data = array();
-                $d = [
-	                // id of 1 is a placeholder - not relevant
-	                'id' => 1,
-                    'postcode' => $package['destination']['postcode'],
-                ];
-                array_push($data, $d);
-                
-                
-                // prepare headers and send request
-                $url = "https://api.anteam.co.uk/profiles/check_address/";
-                $handle = curl_init($url);
-                $encodedData = json_encode($data);
-                $authToken = $this->get_auth_token();
-                curl_setopt($handle, CURLOPT_POST, 1);
-                curl_setopt($handle, CURLOPT_POSTFIELDS, $encodedData);
-                curl_setopt($handle, CURLOPT_HTTPHEADER, [
-	                'Content-Type: application/json',
-                    'Authorization: TOKEN ' . $authToken,
-                ]);
+            
+            // prepare headers and send request
+            $url = "https://api.anteam.co.uk/profiles/check_address/";
+            $handle = curl_init($url);
+            $encodedData = json_encode($data);
+            $authToken = $this->get_auth_token();
+            curl_setopt($handle, CURLOPT_POST, 1);
+            curl_setopt($handle, CURLOPT_POSTFIELDS, $encodedData);
+            curl_setopt($handle, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: TOKEN ' . $authToken,
+            ]);
 
-                curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-                $result = curl_exec($handle);
+            curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+            $result = curl_exec($handle);
 
-                $httpStatus = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-        
-                // ADD ERROR HANDLING FOR RESULT
-                curl_close($handle);
-                                
-                // error handling from API
-                if($httpStatus==200) {
-                    // Decode the response as a JSON object
-                    $json = json_decode($result);
-                    
-                    // load the order
-                    $orderChecked = $json[0];
-                    if($orderChecked->id == 1) {
-                        if($orderChecked->accepted) {
-                            // if postcode is valid, add shipping rate
-                            $rate = array(
-                                'id'        => $this->id,
-                                'label'     => $this->title,
-                                'cost'      => 3,
-                                'calc_tax'  => 'per_item',
-                            );
-                            $this->add_rate($rate);
-                        }
+            $httpStatus = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+    
+            // ADD ERROR HANDLING FOR RESULT
+            curl_close($handle);
+                            
+            // error handling from API
+            if($httpStatus==200) {
+                // Decode the response as a JSON object
+                $json = json_decode($result);
+                
+                // load the order
+                $orderChecked = $json[0];
+                if($orderChecked->id == 1) {
+                    if($orderChecked->accepted) {
+                        // if postcode is valid, add shipping rate
+                        $rate = array(
+                            'id'        => $this->id,
+                            'label'     => $this->title,
+                            'cost'      => 3,
+                            'calc_tax'  => 'per_item',
+                        );
+                        $this->add_rate($rate);
                     }
-                } 
-                
-            }
+                }
+            } 
+            
         }
+
     }
     
     
