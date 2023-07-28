@@ -48,18 +48,16 @@ function fetchOrders() {
         $checkOrders = checkAddresses($orders, $authToken);
     
         foreach ($orders as $order) {
-            if(get_post_meta($order->get_id(), 'anteam_denied', true) == 'false') {
-                if(getOrderWeight($order) < (15 * getWeightMultiplier())) {
-                    foreach ($checkOrders as $orderChecked) {
-                        if($orderChecked->id == $order->get_id()) {
-                            if($orderChecked->accepted) {
-                                error_log('adding order' . $order->get_id());
-                                array_push($retOrders, $order);
-                                break;
-                            }
+            if(get_post_meta($order->get_id(), 'anteam_denied', true) != 'true') {
+                foreach ($checkOrders as $orderChecked) {
+                    if($orderChecked->id == $order->get_id()) {
+                        if($orderChecked->accepted) {
+                            error_log('adding order' . $order->get_id());
+                            array_push($retOrders, $order);
+                            break;
                         }
-                    } 
-                }
+                    }
+                } 
             }
         }
     }
@@ -93,7 +91,7 @@ function orderApproved($order)
         } else if ($total_weight < (15*$multiplier)) {
             $size = "extra_large";
         } else {
-            $size = "inv";
+            $size = "extra_large";
             error_log("Error , line 104 : anteam_utilities.php");
         }
     
@@ -153,20 +151,8 @@ function orderApproved($order)
 
 function orderDenied($order)
 {
-    
-    // set shipping method to free shipping, business can handle as they like
-    $free_shipping_method_id = 'free_shipping:1';
-    $shipping_items = $order->get_items('shipping');
-    
     update_post_meta($order->get_id(), 'anteam_denied', 'true');
-
-    foreach ($shipping_items as $shipping_item) {
-        $shipping_item->set_method_title($free_shipping_method_id);
-        $shipping_item->save();
-    }
-
-    $order->save();
-  
+    $order->save(); 
 } 
 
 function getOrderWeight($order) {
@@ -202,6 +188,8 @@ function checkAddresses($orders, $authToken) {
         $d = [
             'id' => $order->get_id(),
             'postcode' => $order->get_shipping_postcode(),
+            'weight' => getOrderWeight($order),
+            'unit' => get_option('woocommerce_weight_unit'),
         ];
         array_push($data, $d);
     }

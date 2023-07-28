@@ -6,7 +6,7 @@ Version: 1.0
 Author: Anteam
 Description: Automatically ship products from your store using Anteam
 Requires PHP: 8.0
-Requires at least: 6.2
+Requires at least: 6.1.3
 */
 
 // Include the WooCommerce plugin files and shipping class files
