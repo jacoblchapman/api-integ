@@ -142,9 +142,11 @@ function orderApproved($order)
         if($httpStatus==201) {
             // Order has been accepted, update status to completed
             $order->update_status('completed');
+            return true;
         } else {
             error_log("Error, line 155 : Anteam utilities.php , Result : " . $result . " Status : " . $httpStatus);
             echo '<script type="text/javascript">alert("Error : Order No. ' . $order->get_id() . ' not fulfilled succesfully, please contact Anteam support");</script>';  
+            return false;
         } 
     }
 }
