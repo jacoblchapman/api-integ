@@ -141,6 +141,7 @@ function orderApproved($order)
         if($httpStatus==201) {
             // Order has been accepted, update status to completed
             $order->update_status('completed');
+            writeOrder($order);
             return true;
         } else {
             error_log("Error, line 155 : Anteam utilities.php , Result : " . $result . " Status : " . $httpStatus);
@@ -221,3 +222,51 @@ function checkAddresses($orders, $authToken) {
         return array();
     }
 }
+
+function writeOrder($order) {
+    $name = $order->get_shipping_first_name() ? $order->get_shipping_first_name() : $order->get_billing_first_name();
+    $address = $order->get_shipping_address_1() . $order->get_shipping_address_2() . ', ' . $order->get_shipping_city() . ', ' . $order->get_shipping_postcode();
+    $id = $order->get_id();
+
+    $content = '
+    <div class="divider"></div>
+    <p><strong>Name: </strong>' . $name . '</p> 
+    <p><strong>Shipping Address: </strong>' . $address . '</p>
+    <p><strong>Order ID: </strong>' . $id . '</p>
+    
+    <table border="1">
+        <tr>
+            <th>Item</th>
+            <th>SKU</th>
+            <th>Description</th>
+            <th>Quantity</th>
+        </tr>';
+
+    // Loop through each item in the order
+    foreach ($order->get_items() as $item_id => $item) {
+        $product = $item->get_product();
+        $item_name = $product ? $product->get_name() : $item->get_name();
+        $item_sku = $product ? $product->get_sku() : '';
+        $item_desc = $product ? $product->get_description() : '';
+        $item_quantity = $item->get_quantity();
+
+        // Append item details to the table
+        $content .= '
+        <tr>
+            <td>' . $item_name . '</td>
+            <td>' . $item_sku . '</td>
+            <td>' . $item_desc . '</td>
+            <td>' . $item_quantity . '</td>
+        </tr>';
+    }
+
+    $content .= '
+    </table>
+    ';
+    
+    $file_path = __DIR__ . '/print-orders.html';
+    
+    file_put_contents($file_path, $content, FILE_APPEND);
+}
+
+

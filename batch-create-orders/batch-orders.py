@@ -1,14 +1,14 @@
 from woocommerce import API
 import time
 
-# ck_9a95a4e8dbb568454cb520cb2cd3bc42d8b94847
-# cs_403b2b6bafae84372cd86c8afcb2b492ec7987ca
+# ck_532c86e72fab3243eadaf6e16a2619ca5e045ab7
+# cs_49b01c2908ee5516c3eeb54cce1dfec0fb69d692
 
 
 wcapi = API(
     url="https://freddietestdev.online",
-    consumer_key="ck_9a95a4e8dbb568454cb520cb2cd3bc42d8b94847",
-    consumer_secret="cs_403b2b6bafae84372cd86c8afcb2b492ec7987ca",
+    consumer_key="ck_532c86e72fab3243eadaf6e16a2619ca5e045ab7",
+    consumer_secret="cs_49b01c2908ee5516c3eeb54cce1dfec0fb69d692",
     version="wc/v3"
 )
 
@@ -22,7 +22,7 @@ data = {
         "address_1": "6 Garden Road",
         "address_2": "",
         "city": "Bromley",
-        "postcode": "BR1 3LU",
+        "postcode": "NG11 4RU",
         "country": "UK",
         "email": "john.doe@example.com",
         "phone": "(555) 555-5555"
@@ -33,7 +33,7 @@ data = {
         "address_1": "6 Garden Road",
         "address_2": "",
         "city": "Bromley",
-        "postcode": "BR1 3LU",
+        "postcode": "NG11 4RU",
         "country": "UK"
     },
     "line_items": [
@@ -51,8 +51,8 @@ data = {
     ]
 }
 
-for i in range(0,62):
-    wcapi.post("orders", data).json()
-    time.sleep(0.5)
+for i in range(0,20):
+    print(wcapi.post("orders", data).json())
+    time.sleep(0.1)
 
 print("Done")

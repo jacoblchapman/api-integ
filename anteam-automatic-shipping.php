@@ -23,6 +23,9 @@ add_action('woocommerce_new_order', 'add_anteam_denied_field');
 // Instantiate and add the custom shipping method
 function anteam_add_shipping_method($methods) {
     $methods['anteam_shipping'] = 'WC_Anteam_Shipping_Method';
+
+    global $Anteam_shipping_instance;
+    $Anteam_shipping_instance = new WC_Anteam_Shipping_method();
     return $methods;
 }
 add_filter('woocommerce_shipping_methods', 'anteam_add_shipping_method');
@@ -91,7 +94,14 @@ function load_orders_page() {
     .order-approval-table {
         margin-top: 20px;
     }
+    .table-title {
+        margin-bottom: 20px;
+    }
     </style>';
+    
+    echo'<form action="' . esc_url(plugins_url('print-orders.html', __FILE__)) . '" method="post" target="_blank">
+        <input type="submit" name="printButton" value="Print orders">
+    </form>';
 
     echo '<table class="wp-list-table widefat striped order-approval-table">';
     echo '<thead>';
