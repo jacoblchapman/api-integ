@@ -27,7 +27,7 @@ function fetchOrders() {
     
     // create array to store valid orders
     $retOrders = array();
-    $Anteam_shipping_instance = new WC_Anteam_Shipping_Method();
+    global $Anteam_shipping_instance;
     
     // filter based on setting
     if($Anteam_shipping_instance->get_enabled() == true) {
@@ -41,7 +41,6 @@ function fetchOrders() {
             }
         }
     } else {
-        $Anteam_shipping_instance = new WC_Anteam_Shipping_Method();
 
         $authToken = $Anteam_shipping_instance->get_auth_token();
 
@@ -70,7 +69,7 @@ function orderApproved($order)
 {
     if($order->get_status() == 'processing') {
         
-        $Anteam_shipping_instance = new WC_Anteam_Shipping_Method();
+        global $Anteam_shipping_instance;
         
         // Prepare additional data for POST request
         date_default_timezone_set('Europe/London');
