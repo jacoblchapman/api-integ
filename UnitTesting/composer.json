@@ -1,0 +1,15 @@
+{
+    "name": "anteam/tests",
+    "type": "project",
+    "require": {
+        "phpunit/phpunit": "^9.6"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "9.6"
+    },
+    "authors": [
+        {
+            "name": "freddie"
+        }
+    ]
+}
