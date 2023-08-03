@@ -141,7 +141,10 @@ function orderApproved($order)
         if($httpStatus==201) {
             // Order has been accepted, update status to completed
             $order->update_status('completed');
-            writeOrder($order);
+            $customer_id = json_decode($result)->customer_id;
+
+            $Anteam_shipping_instance->last_order = $order->get_id();
+            writeOrder($order, $customer_id);
             return true;
         } else {
             error_log("Error, line 155 : Anteam utilities.php , Result : " . $result . " Status : " . $httpStatus);
@@ -153,6 +156,9 @@ function orderApproved($order)
 
 function orderDenied($order)
 {
+    global $Anteam_shipping_instance;
+    $Anteam_shipping_instance->last_order = $order->get_id();
+
     update_post_meta($order->get_id(), 'anteam_denied', 'true');
     $order->save(); 
 } 
@@ -223,7 +229,7 @@ function checkAddresses($orders, $authToken) {
     }
 }
 
-function writeOrder($order) {
+function writeOrder($order, $customer_id) {
     $name = $order->get_shipping_first_name() ? $order->get_shipping_first_name() : $order->get_billing_first_name();
     $address = $order->get_shipping_address_1() . $order->get_shipping_address_2() . ', ' . $order->get_shipping_city() . ', ' . $order->get_shipping_postcode();
     $id = $order->get_id();
@@ -233,6 +239,7 @@ function writeOrder($order) {
     <p><strong>Name: </strong>' . $name . '</p> 
     <p><strong>Shipping Address: </strong>' . $address . '</p>
     <p><strong>Order ID: </strong>' . $id . '</p>
+    <p><strong>Customer ID: </strong>' . $customer_id . '</p>
     
     <table border="1">
         <tr>
@@ -269,4 +276,43 @@ function writeOrder($order) {
     file_put_contents($file_path, $content, FILE_APPEND);
 }
 
+function reset_order($order) {
+    update_post_meta($order->get_id(), 'anteam_denied', 'false');
+    $order->update_status('processing');
+}
 
+function clear_packing() {
+    $content = '<!DOCTYPE html>
+<html>
+<head>
+    <title>Order Details</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+        .divider {
+            border: 1px solid black;
+            width: 95%;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>';
+    
+    $file_path = __DIR__ . '/print-orders.html';
+    
+    file_put_contents($file_path, $content);
+    
+    
+}

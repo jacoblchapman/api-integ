@@ -10,6 +10,7 @@ class WC_Anteam_Shipping_Method extends WC_Shipping_Method {
         $this->method_title       = __('Anteam Shipping', 'anteam_shipping');
         $this->method_description = __('Anteam shipping method used to ship parcels automatically', 'anteam_shipping');
         $this->title              = 'Anteam Shipping';
+        $this->last_order = null;
 
 
         $this->availability = 'including';
