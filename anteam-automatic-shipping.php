@@ -60,7 +60,6 @@ function load_orders_page() {
 
     global $Anteam_shipping_instance;
     // "Button" press logic
-    // can get buggy if user referseshes page with action href
     if (isset($_GET['action']) && isset($_GET['order_id'])) {
         $action = $_GET['action'];
         $order_id = $_GET['order_id'];
@@ -103,7 +102,7 @@ function load_orders_page() {
     }
     </style>';
     
-
+    // action buttons
     echo '<div style="display: inline-flex; gap: 10px;">';
 
     echo '<form action="' . esc_url(plugins_url('print-orders.html', __FILE__)) . '" method="post" target="_blank">

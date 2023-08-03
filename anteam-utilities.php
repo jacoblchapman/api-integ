@@ -51,7 +51,6 @@ function fetchOrders() {
                 foreach ($checkOrders as $orderChecked) {
                     if($orderChecked->id == $order->get_id()) {
                         if($orderChecked->accepted) {
-                            error_log('adding order' . $order->get_id());
                             array_push($retOrders, $order);
                             break;
                         }
@@ -142,7 +141,8 @@ function orderApproved($order)
             // Order has been accepted, update status to completed
             $order->update_status('completed');
             $customer_id = json_decode($result)->customer_id;
-
+            
+            // save most recently interacted with order : for undo button
             $Anteam_shipping_instance->last_order = $order->get_id();
             writeOrder($order, $customer_id);
             return true;
@@ -156,6 +156,7 @@ function orderApproved($order)
 
 function orderDenied($order)
 {
+    // save most recently interacted with order : for undo button
     global $Anteam_shipping_instance;
     $Anteam_shipping_instance->last_order = $order->get_id();
 
@@ -249,7 +250,7 @@ function writeOrder($order, $customer_id) {
             <th>Quantity</th>
         </tr>';
 
-    // Loop through each item in the order
+    // <oop through each item in the order
     foreach ($order->get_items() as $item_id => $item) {
         $product = $item->get_product();
         $item_name = $product ? $product->get_name() : $item->get_name();
@@ -276,11 +277,13 @@ function writeOrder($order, $customer_id) {
     file_put_contents($file_path, $content, FILE_APPEND);
 }
 
+// resets all properties of an order
 function reset_order($order) {
     update_post_meta($order->get_id(), 'anteam_denied', 'false');
     $order->update_status('processing');
 }
 
+// reset the contents of print-orders.html
 function clear_packing() {
     $content = '<!DOCTYPE html>
 <html>
