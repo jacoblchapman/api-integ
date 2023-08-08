@@ -10,6 +10,7 @@ class WC_Anteam_Shipping_Method extends WC_Shipping_Method {
         $this->method_title       = __('Anteam Shipping', 'anteam_shipping');
         $this->method_description = __('Anteam shipping method used to ship parcels automatically', 'anteam_shipping');
         $this->title              = 'Anteam Shipping';
+        $this->last_order = null;
 
 
         $this->availability = 'including';
@@ -106,8 +107,6 @@ class WC_Anteam_Shipping_Method extends WC_Shipping_Method {
             $result = curl_exec($handle);
 
             $httpStatus = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-    
-            // ADD ERROR HANDLING FOR RESULT
             curl_close($handle);
                             
             // error handling from API

@@ -23,6 +23,9 @@ add_action('woocommerce_new_order', 'add_anteam_denied_field');
 // Instantiate and add the custom shipping method
 function anteam_add_shipping_method($methods) {
     $methods['anteam_shipping'] = 'WC_Anteam_Shipping_Method';
+
+    global $Anteam_shipping_instance;
+    $Anteam_shipping_instance = new WC_Anteam_Shipping_method();
     return $methods;
 }
 add_filter('woocommerce_shipping_methods', 'anteam_add_shipping_method');
@@ -55,12 +58,15 @@ function anteam_calculate_shipping_on_address_change($customer_id, $address) {
 // Generate table
 function load_orders_page() {
 
+    global $Anteam_shipping_instance;
     // "Button" press logic
-    // can get buggy if user referseshes page with action href
     if (isset($_GET['action']) && isset($_GET['order_id'])) {
         $action = $_GET['action'];
         $order_id = $_GET['order_id'];
-
+        
+        if ($action == 'clear') {
+            clear_packing();
+        }
         $order = wc_get_order($order_id);
         if ($order) {
             if ($action === 'approve') {
@@ -68,9 +74,9 @@ function load_orders_page() {
             }
             elseif ($action === 'deny') {
                 orderDenied($order);
+            } elseif ($action === 'undo') {
+                reset_order($order);
             }
-        } else {
-            error_log("Error , line 71 , anteam-automatic-shipping.php : Critical error , order not recognised");
         }
     }
     
@@ -91,7 +97,31 @@ function load_orders_page() {
     .order-approval-table {
         margin-top: 20px;
     }
+    .table-title {
+        margin-bottom: 20px;
+    }
     </style>';
+    
+    // action buttons
+    echo '<div style="display: inline-flex; gap: 10px;">';
+
+    echo '<form action="' . esc_url(plugins_url('print-orders.html', __FILE__)) . '" method="post" target="_blank">
+        <input type="submit" name="printButton" value="Print orders">
+    </form>';
+
+    $last_action = $Anteam_shipping_instance->last_order;
+    echo '<form action="?page=anteam-orders&action=undo&order_id=' . $last_action . '" method="post">
+        <input type="submit" name="undoButton" value="Undo">
+    </form>';
+
+    echo '<form action="?page=anteam-orders&action=clear&order_id=0" method="post">
+        <input type="submit" name="clearButton" value="Clear Packing List">
+    </form>';
+
+    echo '</div>';
+
+
+
 
     echo '<table class="wp-list-table widefat striped order-approval-table">';
     echo '<thead>';
@@ -137,19 +167,3 @@ function load_orders_page() {
     echo '</tbody>';
     echo '</table>';
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
